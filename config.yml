@@ -1,0 +1,101 @@
+# The crf config is modified from "https://github.com/MarvinTeichmann/ConvCRF"
+crf_config:
+    'filter_size': 7
+    'blur': 4
+    'merge': True
+    'norm': 'none'
+    'weight': 'vector'
+    "unary_weight": 1
+    "weight_init": 0.2
+
+    'trainable': False
+    'convcomp': False
+    'logsoftmax': True  # use logsoftmax for numerical stability
+    'softmax': True
+    'final_softmax': False
+
+    'pos_feats': {
+        'sdims': 3,
+        'compat': 3,
+    }
+    'col_feats': {
+        'sdims': 80,
+        'schan': 13,   # schan depend on the input scale.
+                       # use schan = 13 for images in [0, 255]
+                       # for normalized images in [-0.5, 0.5] try schan = 0.1
+        'compat': 10,
+        'use_bias': False
+    }
+    "trainable_bias": False
+
+    "pyinn": False
+
+# The train config is how to train your unary and crf parameters
+train_config:
+
+    data_path: ''
+    # The path of VOC dataset or SBD dataset, if you are interesting in VOC dataset, make sure to modify the 
+    # dataset.py file to your own custom dataset
+    
+    aux: False
+    # aux is whether to use the auxiliary classifier, note that if you utilize auxiliary classifier, the loss
+    # function will consider the output of auxiliary classifier
+    
+    num_classes: 21
+    # The number of classes in segmentation tasks, for instance, in Pascal VOC 2012, we have 20 classes + 1 
+    # background to be segmentated
+    
+    crf: False
+    # This parameter is to decide to add the CRFs parameters to the your model or not, if True, the ConvCRFs 
+    # will add on the top of FCNHead to smooth the FCN output
+    
+    fullscaleFeat: null
+    # In the source code, the feature vectors are chosen as the RGB intensity and spatial coordinated, however,
+    # we wonder that the model performance will be a push further step by adding unary output as our new feature
+    # vectors or not. If True, then we will add unary output to your feature vectors, and make sure to set argu-
+    # ment crf to True
+    
+    held_out_images: 200
+    # In the origin paper, they conclude that CRFs parameters get the best result when CRFs parameters are trai-
+    # ned with the 200 held out imgaes, which means that the number of images will be held out from your traini-
+    # ng
+    train_with_held_out: True
+    # The parameter is to decided whether to train with held out images or not. Note that we only set the param-
+    # eter to True, when we are updating the CRFs parameters
+    
+    lr_scheduler: poly
+    # The are two options for the learning rate scheduler, "poly" or "warmup", first one is the PolynomialScheduler
+    # which is multiplied the initialize learning rate with lambda (1 - step / max steps) ** 0.9, and the warmup 
+    # learning rate scheduler will be start with some warmup epochs then change to PolynomialScheduler
+    
+    loss: CE
+    # The loss function to train your network, in the newest version, only cross entropy are avaliable
+    
+    device: cuda
+    # The device of pytorch training location, "cuda" or "cpu" are avaliable
+    
+    batch_size: 16
+    # The batch size of every epoch. Note that CRFs training need lots of memory and it is time consuming, so
+    # you may have a large number of batch size when training your unary output, but change to small number 
+    # when you are utilizing CRFs
+    
+    epochs: 25
+    # The number of epochs to train
+    
+    lr: 5e-5
+    # The initializ learning rate
+    
+    weight_decay: 5e-4
+    # The L2 pentaly, which will force to decrease the magnitude of training parameter
+    
+    start_epoch: 0
+    # The start epochs. Note that the paramter will change if you are loading your pretrained network
+    
+    amp: False
+    # Pytorch amp training to speed up the training phase
+    
+    resume: ''
+    # Path to load your pretrained model
+    
+    print_freq: 100
+    # The number of steps to print your metric logger
