@@ -49,7 +49,7 @@ class GaussCRF(nn.Module):
         "Connected CRFs with Gaussian Edge Pots" (arxiv.org/abs/1210.5644)
     """
 
-    def __init__(self, conf, shape, nclasses=None, use_gpu=True):
+    def __init__(self, conf, shape, nclasses=None, use_gpu=True, fullscaleFeat=True):
         super(GaussCRF, self).__init__()
 
         self.conf = conf
@@ -102,7 +102,7 @@ class GaussCRF(nn.Module):
 
         return
 
-    def forward(self, unary, img, num_iter=5):
+    def forward(self, unary, img, num_iter=5, fullscaleFeat=True):
         """ Run a forward pass through ConvCRF.
         Arguments:
             unary: torch.Tensor with shape [bs, num_classes, height, width].
